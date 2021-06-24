@@ -53,6 +53,7 @@ def main():
     stones = pygame.sprite.Group(stone,stone1)
     s = speed
     score = 0
+    score_stones = []
     
     while True:
         for event in pygame.event.get():
@@ -84,7 +85,17 @@ def main():
             submarine.rect = submarine.rect.move(0,-5)
         if pygame.display.get_active() and down and not stop:    
             submarine.rect = submarine.rect.move(0,5)
-            
+          
+        #障碍物更新
+        if stones.sprites()[-2].rect.right < 550: 
+            speed = s
+            x = random.random()
+            stone = Stone("stone.png", x, speed, True)
+            stone1 = Stone("stone1.png", x, speed, False)
+            stones.add(stone,stone1)
+        if  pygame.display.get_active():
+            stones.update()
+                
          #判断碰撞，结束游戏
         if pygame.sprite.spritecollideany(submarine,stones) or submarine.rect.top <= 0 or submarine.rect.bottom >= 600:
             stop = 1
@@ -93,19 +104,12 @@ def main():
             gameover = pygame.image.load("gameover.png")
             gameoverrect = gameover.get_rect().move(200,95)
             
-        #记分
-        for stone in stones.sprites():
-            if stone.rect.right == submarine.rect.left:
+         #记分
+        for stone in stones:
+            if stone.rect.right < submarine.rect.left and not stone in score_stones:
+                score_stones.append(stone)
                 score = score + 0.5
-        
-        if stones.sprites()[-2].rect.right < 550: #障碍物更新
-            speed = s
-            x = random.random()
-            stone = Stone("stone.png", x, speed, True)
-            stone1 = Stone("stone1.png", x, speed, False)
-            stones.add(stone,stone1)
-        if  pygame.display.get_active():
-            stones.update()
+
     
         screen.blit(background,(0,0))
         screen.blit(submarine.image,submarine.rect)
